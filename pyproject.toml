@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "shadow-tomography"
+version = "0.1.0"
+description = ""
+authors = ["Daniel Qenani"]
+readme = "README.md"
+packages = [{include = "shadow_tomography"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+qiskit = "^0.39.3"
+
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
