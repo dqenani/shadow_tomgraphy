@@ -1,0 +1,4 @@
+dev
+*__pychache__*
+.idea
+.python-version
