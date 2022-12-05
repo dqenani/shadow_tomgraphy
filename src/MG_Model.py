@@ -26,7 +26,8 @@ def task(cur_measurement, system_size):
 
         #Measure each qubit in the appropriate basis as given by the measurement scheme
         counter = 0
-        for j in cur_measurement:       
+        for j in cur_measurement: 
+            print(j)      
             if (j == 'Z'):
                 #already in computational basis 
                 continue
