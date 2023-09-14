@@ -125,5 +125,23 @@ def reconstruction(shadow):
 def op_norm(O):
     return np.sqrt(np.abs(np.trace(O.conj().T@O)))             
 
-
+'''
+    This function is meant to interface with algorithimic post processing that rely
+    on the counts found at the end of a quantum experiment instead of the density matrix
+    of the final state. It does this by artifically creating counts based on the density matrix
+    and the size of the shadow used to construct the density matrix.
+    
+    Args:
+        mat (nd.array): An operator representing the density matrix of a quantum state
+        size (int): size of the classical shadow used to construct the density matrix
+    Returns:
+            counts (dict{str: int}): the counts of an experiment that would produce the above quantum state at the end
+'''       
+def density_matrix_to_counts(mat, size):
+    assert mat.shape[0] == mat.shape[1], "Invalid Density Matrix, not square"
+    #assert np.trace(mat) == 1, "Invalid Density Matrix, Trace does not equal 1"
+    
+    counts = {format(i,'b').zfill(int(math.log2(mat.shape[0]))): int(np.real(mat[i, i]) * size) for i in range(mat.shape[0])}
+    
+    return dict(sorted(counts.items(),key=operator.itemgetter(1),reverse=True))
        
