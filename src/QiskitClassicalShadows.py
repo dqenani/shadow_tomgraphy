@@ -6,6 +6,7 @@ import math
 from qiskit.primitives import Estimator
 from qiskit import QuantumCircuit, transpile, Aer
 from qiskit.providers.aer import QasmSimulator
+from qiskit.providers.fake_provider import FakeMontreal
 from qiskit.quantum_info.operators import Operator, Pauli, SparsePauliOp
 
 import matplotlib.pyplot as plt
@@ -14,6 +15,7 @@ import time
 from concurrent.futures import ProcessPoolExecutor
 import itertools
 
+import operator
 import numpy as np
 np.random.seed(666)
 
@@ -32,24 +34,19 @@ from ShadowAssist import shadow_assist
             shadow(tuple): returns the classical shadow of the quantum state which is a tuple of two lists, one containing the
             measurement results, and the other containing an enumeration of the unitaries that rotated the state
 '''
-def calc_shadow(circ_base, shadow_size, num_qubits):
+def calc_shadow(circ_base, shadow_size, num_qubits, device = None):
     
     indices = np.random.randint(0,3, size = (shadow_size, num_qubits)) #Here the unitaries that rotate the state are drawn from a random distribution
-
-    values = []
-
-    bases =[QuantumCircuit(num_qubits) for d in range(shadow_size)] #Creates a list of all the Quantum Circuits to be Parallelized
     
-    for j in range(shadow_size):
-        bases[j] = circ_base.copy() # instantiating the array of quantum circuits with the appropriate quantum state given
-
-    with ProcessPoolExecutor() as executor:  #Parallel Processing the measurements 
-        result = executor.map(shadow_assist, indices, bases, itertools.repeat(num_qubits))
-
-    values.extend(list(result))
-    values = np.array(values)
+    with ProcessPoolExecutor() as executor: #Parallel Processing the measurements
+        #if a backend is given set it as the device to be used
+        if device != None:
+            #the quantum circuits are instantiated with the appropriate quantum state by copying base circuit
+            result = executor.map(shadow_assist, indices, itertools.repeat(circ_base.copy()), itertools.repeat(num_qubits), itertools.repeat(device))
+        else:
+            result = executor.map(shadow_assist, indices, itertools.repeat(circ_base.copy()), itertools.repeat(num_qubits))
     
-    return (values, indices) #returns the shadow as a tuple
+    return (np.array(list(result)), indices) #returns the shadow as a tuple
 
 '''
     This function takes a classical shadow and using the theory of measurement channel inversion using Pauli Gates as
@@ -125,6 +122,7 @@ def reconstruction(shadow):
 def op_norm(O):
     return np.sqrt(np.abs(np.trace(O.conj().T@O)))             
 
+
 '''
     This function is meant to interface with algorithimic post processing that rely
     on the counts found at the end of a quantum experiment instead of the density matrix
@@ -140,8 +138,6 @@ def op_norm(O):
 def density_matrix_to_counts(mat, size):
     assert mat.shape[0] == mat.shape[1], "Invalid Density Matrix, not square"
     #assert np.trace(mat) == 1, "Invalid Density Matrix, Trace does not equal 1"
-    
-    counts = {format(i,'b').zfill(int(math.log2(mat.shape[0]))): int(np.real(mat[i, i]) * size) for i in range(mat.shape[0])}
+    counts = {format(i,'b').zfill(int(math.log2(mat.shape[0]))): int(np.abs(np.real(mat[i, i])) * size) for i in range(mat.shape[0])}
     
     return dict(sorted(counts.items(),key=operator.itemgetter(1),reverse=True))
-       
