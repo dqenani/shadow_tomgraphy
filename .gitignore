@@ -1,4 +1,8 @@
 dev
-*__pychache__*
+src/__pychache__/
 .idea
 .python-version
+.venv
+src/.ipynb_checkpoints/
+.DS_Store
+
