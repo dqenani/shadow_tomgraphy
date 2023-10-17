@@ -1,0 +1,36 @@
+## SLURM PROLOG ###############################################################
+##    Job ID : 11588452
+##  Job Name : Shadow-QPE-Job
+##  Nodelist : node1626
+##      CPUs : 20
+##   Mem/CPU : 8192 MB
+## Directory : /oscar/scratch/dqenani
+##   Job Started : Tue Oct 10 09:42:18 EDT 2023
+###############################################################################
+Backend Used: Fake Montreal
+
+ Snapshot Range = [10000, 50000, 100000] 
+
+shadow zeromode (10000 shots): [0.30442673 0.70869045 0.5888856  0.24144557]
+shadow zeromode (50000 shots): [0.56360484 0.53211652 0.43348575 0.45966477]
+shadow zeromode (100000 shots): [0.67177099 0.44591883 0.43697399 0.3986651 ]
+shadow zeromode (10000 shots): [0.7200823  0.06085806 0.46547467 0.51099032]
+shadow zeromode (50000 shots): [0.61046477 0.54485825 0.44573456 0.36301921]
+shadow zeromode (100000 shots): [0.50280284 0.39036559 0.55507931 0.53543531]
+quantum zeromode (10000 shots): [0.73905741 0.42991097 0.33682122 0.39436298]
+quantum zeromode (50000 shots): [0.72980171 0.43304938 0.36767581 0.38035799]
+quantum zeromode (100000 shots): [0.69184451 0.47120731 0.38015629 0.39344129]
+quantum zeromode (10000 shots): [0.74952018 0.43362153 0.34266797 0.36437691]
+quantum zeromode (50000 shots): [0.72299881 0.45176422 0.34487591 0.39273709]
+quantum zeromode (100000 shots): [0.69265412 0.47203478 0.38075831 0.39043124]
+With Shadow Results:
+0.7644132420371957, 0.9294873615555407, 0.9634262519703197
+0.8772043578954654, 0.9472787173399068, 0.8696350882907976
+
+ Without Shadow Results:
+0.9869522561048559, 0.9837361721612745, 0.9759438780029999
+0.9895081109705351, 0.9846219163117799, 0.9762031464143609
+
+Shadow Run Time = -10 hours: 9 minutes: 30 seconds
+Without Shadow Run Time = -1 hours: 59 minutes: 52 seconds
+Total Run Time = -10 hours: 9 minutes: 21 seconds

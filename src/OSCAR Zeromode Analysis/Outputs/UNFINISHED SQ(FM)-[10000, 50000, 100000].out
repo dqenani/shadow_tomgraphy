@@ -1,0 +1,23 @@
+## SLURM PROLOG ###############################################################
+##    Job ID : 11530641
+##  Job Name : Shadow-QPE-Job
+##  Nodelist : node1725
+##      CPUs : 20
+##   Mem/CPU : 8192 MB
+## Directory : /oscar/scratch/dqenani
+##   Job Started : Fri Oct  6 10:44:41 EDT 2023
+###############################################################################
+Backend Used: Fake Montreal
+
+ Snapshot Range = [10000, 50000, 100000] 
+
+shadow zeromode (10000 shots): [0.         0.61557357 0.69250253 0.3761774 ]
+shadow zeromode (50000 shots): [0.44460211 0.49096643 0.5297551  0.5297551 ]
+shadow zeromode (100000 shots): [0.58379778 0.45497788 0.52814607 0.4162175 ]
+shadow zeromode (10000 shots): [0.59331346 0.65394201 0.25532146 0.39389077]
+shadow zeromode (50000 shots): [0.64388722 0.4665565  0.57141268 0.20303159]
+shadow zeromode (100000 shots): [0.52409743 0.45873617 0.57727033 0.42619476]
+shadow zeromode (10000 shots): [0.68903602 0.20318564 0.45810739 0.52352896]
+shadow zeromode (50000 shots): [0.40771672 0.60897644 0.58249235 0.35159271]
+shadow zeromode (100000 shots): [0.68690861 0.35444508 0.45712651 0.43995523]
+shadow zeromode (10000 shots): [0.71127581 0.22345983 0.28079107 0.60440781]
