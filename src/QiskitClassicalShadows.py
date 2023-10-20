@@ -69,11 +69,11 @@ def snapshot(b_list, obs_list):
     one_state = np.array([[0,0], [0,1]])
     
     #Define the classical matrix representation for the necessary quantum gates 
-    phase_z = np.array([[1,0],[0, 1j]],dtype = complex)
+    sdg = np.array([[1,0],[0, -1j]],dtype = complex)
     hadamard = np.array([[1/norm,1/norm],[1/norm,-1/norm]])
     identity = np.array([[1,0],[0, 1]])
     
-    unitaries = [hadamard, hadamard @ phase_z , identity] #unitaries corresponding to X, Y, and Z respectively
+    unitaries = [hadamard, hadamard @ sdg , identity] #unitaries corresponding to X, Y, and Z respectively
     
     rho_snapshot = [1]
     for i in range(num_qubits):
