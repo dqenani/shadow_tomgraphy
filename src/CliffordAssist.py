@@ -31,15 +31,7 @@ def shadow_assist(unitary, circuit, num_qubits):
     compiled_circuit = transpile(circ, simulator)
     job = simulator.run(compiled_circuit, shots=1)
     result = job.result().get_counts(compiled_circuit)
-    c = 0
-    for res in result:
-        start = len(res) - num_qubits
-        res = res[start:]
-        c= 0
-        for r in res:
-            if (r == '0'):
-                vals[c] = 1 
-            elif (r == '1'):
-                vals[c] = -1 
-            c = c + 1  
-    return list(vals)
+
+    vals = [map_result[r] for r in list(result)[0][::-1]]
+ 
+    return vals
