@@ -47,6 +47,6 @@ def shadow_assist(indices, circ, num_qubits, device = default_device):
     job = simulator.run(compiled_circuit, shots=1)
     result = job.result().get_counts(compiled_circuit)
 
-    vals = [map_result[r] for r in list(result)[0]]
+    vals = [map_result[r] for r in list(result)[0][::-1]]
  
     return vals
