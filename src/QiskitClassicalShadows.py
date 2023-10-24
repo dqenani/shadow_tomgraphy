@@ -141,3 +141,130 @@ def density_matrix_to_counts(mat, size):
     counts = {format(i,'b').zfill(int(math.log2(mat.shape[0]))): int(np.abs(np.real(mat[i, i])) * size) for i in range(mat.shape[0])}
     
     return dict(sorted(counts.items(),key=operator.itemgetter(1),reverse=True))
+
+'''
+    This function is meant calculate local observables (in the form of Pauli Strings)
+    using the classical shadow of the system. Due to the local scrambling of the 
+    Pauli Group, the observables can be matched to the invidual qubit pauli operators
+    that were used to rotate the state. In this way the expectation value of the local
+    observable is spliced from the shadow.
+    
+    Args:
+        shadow (tuple): the classical shadow of the quantum state which is a tuple of two lists, one containing the
+            measurement results, and the other containing an enumeration of the unitaries that rotated the state
+        observable (string): a string containing the observable in the format:"<Qubit Pauli operator acts on><Pauli Operator>..."
+    Returns:
+            expectation_value (float): the expectation value of the observable
+'''  
+def estimate_obervable(shadow, observable, k=10):
+    shadow_size, num_qubits = shadow[0].shape
+    
+    target_obs = []
+    target_locs = []
+    
+    map_name_to_int = {"X": 0, "Y": 1, "Z": 2}
+    
+    observable = observable.replace(" ", "")
+    
+    #Here we loop through the passed observable to parse it into two arrays, one containing the observable id
+    #The other containing the qubit location of the observable
+    for i in range(0, len(observable) - 1, 2):
+        
+        assert int(observable[i]) in [k for k in range(0, num_qubits)], f"{observable[i]} is an invalid qubit location for observable"
+        target_locs.append(int(observable[i]))
+        
+        assert observable[i + 1] in ['X', 'Y', 'Z'], f"{observable[i]} is not X, Y, or Z"
+        target_obs.append(map_name_to_int[observable[i + 1]])
+
+    target_obs = np.array(target_obs)
+    target_locs = np.array(target_locs)
+
+    b_lists, obs_lists = shadow
+    means = []
+
+    # loop over the splits of the shadow:
+    for i in range(0, shadow_size, shadow_size // k):
+
+        # assign the splits temporarily
+        b_lists_k, obs_lists_k = (
+            b_lists[i: i + shadow_size // k],
+            obs_lists[i: i + shadow_size // k],
+        )
+
+        # find the exact matches for the observable of interest at the specified locations
+        indices = np.all(obs_lists_k[:, target_locs] == target_obs, axis=1)
+
+        # catch the edge case where there is no match in the chunk
+        if sum(indices) > 0:
+            # take the product and sum
+            product = np.prod(b_lists_k[indices][:, target_locs], axis=1)
+            means.append(np.sum(product) / sum(indices))
+        else:
+            means.append(0)
+    
+    return np.median(means)
+
+'''
+    This function determines the size of the shadow necessary to deterimine a set of expectation
+    values within a given level of accuracy
+    
+    Args:
+        error (float): the level of accuracy required for expectation value
+            measurement results, and the other containing an enumeration of the unitaries that rotated the state
+        observables (list<np.array>): a list of arrays containing the matrix form of the observables
+        failure_rate(float): precision of the bound calculation
+    Returns:
+            num_shots (int): the required number of measurements to create appropriately size shadow for error rate
+''' 
+def shadow_bound(error, observables, failure_rate=0.01):
+   
+    M = len(observables)
+    K = 2 * np.log(2 * M / failure_rate)
+    shadow_norm = (
+        lambda op: np.linalg.norm(
+            op - np.trace(op) / 2 ** int(np.log2(op.shape[0])), ord=np.inf
+        )
+        ** 2
+    )
+    N = 34 * max(shadow_norm(o) for o in observables) / error ** 2
+    return int(np.ceil(N * K)), int(K)
+
+'''
+    This function calculate the matrix equivalent of an observable
+    
+    Args:
+        observable (string): a string containing the observable in the format:"<Qubit Pauli operator acts on><Pauli Operator>..."
+    Returns:
+            obs (np.array): array containing the matrix form of the observable
+''' 
+def obs_to_matrix(observable):
+    map_name_to_matrix = {"X": np.array([[0, 1], [1, 0]]), "Y": np.array([[0, -1j],[1j, 0]],dtype = complex), "Z": np.array([[1,0],[0, -1]])}
+    obs_matrix = [1]
+    
+    observable = observable.replace(" ", "")
+    
+    for i in range(0, len(observable) - 1, 2):
+        if observable[i + 1] in ["X", "Y", "Z"]: #Check if there is a better way to enter and verify obs
+            obs_matrix = np.kron(obs_matrix, map_name_to_matrix[observable[i + 1]])
+        else:
+            print("Exception, observable was not X, Y, or Z")
+    
+    return obs_matrix
+
+'''
+    This function  takes the string representing an observable and transforms it into a Sparse Pauli Operator Qiskit Object
+    
+    Args:
+        observable (string): a string containing the observable in the format:"<Qubit Pauli operator acts on><Pauli Operator>..."
+    Returns:
+            obs (SparsePauliOp): Qiskit object containing observable information
+''' 
+def obs_to_op(obs, system_size):
+    op = ["I" for i in range(system_size)]
+    
+    for i in range(0, len(obs) - 1, 2):
+        assert (obs[i + 1] in ["X", "Y", "Z"]), "observable was not X, Y, or Z"
+        assert (int(obs[i]) in [k for k in range(0, system_size)]), "Invalid qubit index"
+        op[int(obs[i])] = obs[i + 1]
+
+    return SparsePauliOp(Pauli("".join(op)))
