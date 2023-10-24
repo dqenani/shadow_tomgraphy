@@ -9,9 +9,8 @@ import numpy as np
 default_device = Aer.get_backend('aer_simulator')
 map_result = {"0": 1, "1": -1}
 
-
- '''
-     This function acts as a helper function for the parallelization of calc_shadow. It takes quantum circuit and unitaries to
+'''
+    This function acts as a helper function for the parallelization of calc_shadow. It takes quantum circuit and unitaries to
      rotate the state, performs the measurement, and returns a list of the results.
      
      Args:
@@ -40,7 +39,7 @@ def shadow_assist(indices, circ, num_qubits, device = default_device):
             raise Exception(f"Invalid Measurement Basis: input on {count} qubit is not a member of the Pauli Bases")
         
         count = count + 1
-    circ.measure_all(inplace = True)
+    circ.measure_all()
                     
     simulator = device
     compiled_circuit = transpile(circ, simulator)
